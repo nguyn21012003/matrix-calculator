@@ -12,7 +12,7 @@ def open_file_csv(file):
         return tabulate(rows, headers="keys", tablefmt="rounded_grid")
 
 
-def open_file_matrix(file):
+def read_file_matrix(file):
     matrix = []
     with open(file, "r") as file:
         reader = csv.reader(file)
@@ -23,6 +23,16 @@ def open_file_matrix(file):
             matrix.append(row_data)
         return matrix
 
+def print_file_matrix(file):
+    matrix = []
+    with open(file, "r") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            row_data = []
+            for element in row:
+                row_data.append(int(element))
+            matrix.append(row_data)
+        return tabulate(matrix, tablefmt="rounded_grid")
 
 def create_matrix(row, col):
     matrix = []
@@ -73,12 +83,12 @@ def additional(operation):
     matrix_A, matrix_B = operation.split("+")
     name_matrix_A = "matrix " + matrix_A + ".csv"
     name_matrix_B = "matrix " + matrix_B + ".csv"
-    matrix_A_pretty = open_file_csv(name_matrix_A)# print dang ma tran nhin cho dep
-    matrix_B_pretty = open_file_csv(name_matrix_B)
-    rowth_A = len(open_file_matrix(name_matrix_A))
-    colth_A = len(open_file_matrix(name_matrix_A)[0])
-    rowth_B = len(open_file_matrix(name_matrix_B))
-    colth_B = len(open_file_matrix(name_matrix_B)[0])
+    matrix_A_pretty = print_file_matrix(name_matrix_A)# print dang ma tran nhin cho dep
+    matrix_B_pretty = print_file_matrix(name_matrix_B)
+    rowth_A = len(read_file_matrix(name_matrix_A))
+    colth_A = len(read_file_matrix(name_matrix_A)[0])
+    rowth_B = len(read_file_matrix(name_matrix_B))
+    colth_B = len(read_file_matrix(name_matrix_B)[0])
     print(f"A is a matrix {rowth_A}x{colth_A}, and B is a matrix {rowth_B}x{colth_B}")
     new_matrix = []
     if colth_A == rowth_B:
@@ -91,20 +101,20 @@ def additional(operation):
             rowth_C = []
 
             for j in range(colth_A):
-                rowth_C.append( open_file_matrix(name_matrix_A)[i][j] + open_file_matrix(name_matrix_B)[i][j])
+                rowth_C.append( read_file_matrix(name_matrix_A)[i][j] + read_file_matrix(name_matrix_B)[i][j])
 
             new_matrix.append(rowth_C)
 
         with open("new matrix.csv", "w", newline="") as writefile:
             writer = csv.writer(writefile)
             writer.writerows(new_matrix)
-        print(open_file_csv(str("new matrix.csv")))
     else:
         print("The number of columns in the first matrix should be equal to the number of rows in the second.")
 
 
 def matrix_calculator(operator):
     additional(operator)
+    print(print_file_matrix("new matrix.csv"))
 
 
 def promt_user(id):
