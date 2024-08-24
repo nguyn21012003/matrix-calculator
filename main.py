@@ -77,6 +77,13 @@ def show_file():
                 writer.writerow({"ID": f"{i+1}", "Name": f"{list_files[i]}"})
 
 
+def check_matrix_element(file):
+    matrix_A = read_file_matrix(file)
+    for i in range(len(matrix_A)):
+        for j in range(len(matrix_A[i])):
+            return f"Note chua ktra thanh phan ma tran"
+
+
 def additional(operation):
     operation = operation.replace(" ", "")
     matrix_A, matrix_B = operation.split("+")
@@ -117,12 +124,59 @@ def additional(operation):
             writer = csv.writer(writefile)
             writer.writerows(new_matrix)
     else:
-        print(
-            "The number of columns in the first matrix should be equal to the number of rows in the second."
-        )
+        print("The number of columns in the first matrix should be equal to the number of rows in the second.")
+
+
+def get_minor_matrix(name, i, j):
+    matrix = read_file_matrix(name)
+    rows = len(matrix)
+    cols = len(matrix[0])
+    minor_matrix = []
+
+    for row in range(rows):
+        if row == i:
+            continue
+
+        new_row = []
+
+        for col in range(cols):
+            if col == j:
+                continue
+
+            new_row.append(matrix[row][col])
+
+        minor_matrix.append(new_row)
+
+    return minor_matrix
+
+
+def det_2x2_matrix(matrix):
+    a = matrix[0][0]
+    b = matrix[0][1]
+    c = matrix[1][1]
+    d = matrix[1][0]
+    det = int(a) * int(c) - int(d) * int(b)
+    return det
+
 
 def det_matrix(name):
-    pass
+    matrix = read_file_matrix(name)
+    print(print_file_matrix(name))
+    row = len(matrix)
+    col = len(matrix[0])
+    if row == col:
+        if row == 2:
+            det = det_2x2_matrix(matrix)
+            return f"Det of {name.replace('.csv', '')} is {det}"
+        elif row == 3:
+            a = matrix[0][0]
+            b = matrix[0][1]
+            c = matrix[0][2]
+            detA = det_2x2_matrix(get_minor_matrix(name, 0, 0))
+            detB = det_2x2_matrix(get_minor_matrix(name, 0, 1))
+            detC = det_2x2_matrix(get_minor_matrix(name, 0, 2))
+            det = int(a) * detA - int(b) * detB + int(c) * detC
+            return f"Det of {name.replace('.csv', '')} is {int(det)}"
 
 
 def matrix_calculator(operator):
@@ -137,11 +191,7 @@ def promt_user(id):
     if id == 1:
         while True:
             try:
-                name = (
-                    str("matrix ")
-                    + str(input("Matrix name from A to Z: ")).upper()
-                    + str(".csv")
-                )
+                name = str("matrix ") + str(input("Matrix name from A to Z: ")).upper() + str(".csv")
                 save_matrix(name)
                 show_file()
                 print("ctrl + Z and Enter to stop")
@@ -164,7 +214,9 @@ def promt_user(id):
         show_file()
         print(open_file_csv(str("memory.csv")))
     elif id == 5:
-        print("Coming soon")
+        print(open_file_csv(str("memory.csv")))
+        name = str("matrix " + input("Input (eg: A,C,... ): ").upper().strip() + ".csv")
+        print(det_matrix(name))
     else:
         return False
 
