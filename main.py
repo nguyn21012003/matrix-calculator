@@ -127,6 +127,50 @@ def additional(operation):
         return False
 
 
+def take_matrix_element(matrix, row_th, col_th):
+    return matrix[row_th][col_th]
+
+
+def multiplicational(operation):
+    operation = operation.replace(" ", "")
+    matrix_A, matrix_B = operation.split("*")
+    name_matrix_A = "matrix " + matrix_A + ".csv"
+    name_matrix_B = "matrix " + matrix_B + ".csv"
+    matrix_A_pretty = print_file_matrix(name_matrix_A)
+    matrix_B_pretty = print_file_matrix(name_matrix_B)
+    rowth_A = len(read_file_matrix(name_matrix_A))
+    colth_A = len(read_file_matrix(name_matrix_A)[0])
+    rowth_B = len(read_file_matrix(name_matrix_B))
+    colth_B = len(read_file_matrix(name_matrix_B)[0])
+    print(f"A is a matrix {rowth_A}x{colth_A}, and B is a matrix {rowth_B}x{colth_B}")
+    new_matrix = []
+    if colth_A == rowth_B:
+        print(matrix_A_pretty)
+        print("x")
+        print(matrix_B_pretty)
+        print("=")
+        for rowA in range(rowth_A):  # Catch the demension of matrix A and B
+            row_new_matrix = []
+            for colA in range(colth_B):
+                row_new_matrix.append(0)
+
+            new_matrix.append(row_new_matrix)
+
+        for rowA in range(rowth_A):
+            for colB in range(colth_B):
+                for rowB in range(rowth_B):
+                    new_matrix[rowA][colB] += int(take_matrix_element(read_file_matrix(name_matrix_A), rowA, rowB)) * int(
+                        take_matrix_element(read_file_matrix(name_matrix_B), rowB, colB)
+                    )
+
+        with open("new matrix.csv", "w", newline="") as writefile:
+            writer = csv.writer(writefile)
+            writer.writerows(new_matrix)
+    else:
+        print("The number of columns in the first matrix should be equal to the number of rows in the second.")
+        return False
+
+
 def get_minor_matrix(name, i, j):
     matrix = read_file_matrix(name)
     rows = len(matrix)
@@ -187,8 +231,9 @@ def matrix_calculator(operator):
     if "+" in operator:
         additional(operator)
         print(print_file_matrix("new matrix.csv"))
-    elif "-" in operator:
-        pass
+    elif "*" in operator:
+        multiplicational(operator)
+        print(print_file_matrix("new matrix.csv"))
 
 
 def promt_user(id):
