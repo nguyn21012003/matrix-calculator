@@ -77,11 +77,11 @@ def show_file():
                 writer.writerow({"ID": f"{i+1}", "Name": f"{list_files[i]}"})
 
 
-def check_matrix_element(file):
-    matrix_A = read_file_matrix(file)
-    for i in range(len(matrix_A)):
-        for j in range(len(matrix_A[i])):
-            return f"Note chua ktra thanh phan ma tran"
+def check_matrix_element(argument):
+    if argument.isdigit():
+        return int(argument)
+    if argument.isalpha():
+        return str(argument)
 
 
 def additional(operation):
@@ -89,7 +89,6 @@ def additional(operation):
     matrix_A, matrix_B = operation.split("+")
     name_matrix_A = "matrix " + matrix_A + ".csv"
     name_matrix_B = "matrix " + matrix_B + ".csv"
-    # print dang ma tran nhin cho dep
     matrix_A_pretty = print_file_matrix(name_matrix_A)
     matrix_B_pretty = print_file_matrix(name_matrix_B)
     rowth_A = len(read_file_matrix(name_matrix_A))
@@ -116,7 +115,7 @@ def additional(operation):
                     else:
                         rowth_C.append(str(A_element) + "+" + str(B_element))
                 else:
-                    rowth_C.append(float(A_element) + float(B_element))
+                    rowth_C.append(int(A_element) + int(B_element))
 
             new_matrix.append(rowth_C)
 
@@ -125,6 +124,7 @@ def additional(operation):
             writer.writerows(new_matrix)
     else:
         print("The number of columns in the first matrix should be equal to the number of rows in the second.")
+        return False
 
 
 def get_minor_matrix(name, i, j):
@@ -177,6 +177,10 @@ def det_matrix(name):
             detC = det_2x2_matrix(get_minor_matrix(name, 0, 2))
             det = int(a) * detA - int(b) * detB + int(c) * detC
             return f"Det of {name.replace('.csv', '')} is {int(det)}"
+        elif row == 4:
+            return f"Comming soon"
+    else:
+        return f"{name.replace('.csv', '')} is not square"
 
 
 def matrix_calculator(operator):
@@ -213,10 +217,13 @@ def promt_user(id):
     elif id == 4:
         show_file()
         print(open_file_csv(str("memory.csv")))
+        print(print_file_matrix("matrix " + str(input("Input the matrix name (eg: A,Z,...): ")) + ".csv"))
     elif id == 5:
         print(open_file_csv(str("memory.csv")))
         name = str("matrix " + input("Input (eg: A,C,... ): ").upper().strip() + ".csv")
         print(det_matrix(name))
+    elif id == 6:
+        print("Coming soon")
     else:
         return False
 
