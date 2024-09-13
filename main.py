@@ -1,4 +1,6 @@
 from tabulate import tabulate
+from rich import print
+import sympy as sp
 import csv
 import os
 
@@ -66,7 +68,7 @@ def show_file():
     files = os.listdir()
     list_files = []
     for file in files:
-        if file.startswith("matrix"):
+        if "matrix" in file:
             file = file.replace(".csv", "")
             file = list_files.append(file)
 
@@ -77,11 +79,8 @@ def show_file():
                 writer.writerow({"ID": f"{i+1}", "Name": f"{list_files[i]}"})
 
 
-def check_matrix_element(argument):
-    if argument.isdigit():
-        return int(argument)
-    if argument.isalpha():
-        return str(argument)
+def take_matrix_element(matrix, row_th, col_th):
+    return matrix[row_th][col_th]
 
 
 def additional(operation):
@@ -97,7 +96,7 @@ def additional(operation):
     colth_B = len(read_file_matrix(name_matrix_B)[0])
     print(f"A is a matrix {rowth_A}x{colth_A}, and B is a matrix {rowth_B}x{colth_B}")
     new_matrix = []
-    if colth_A == rowth_B:
+    if colth_A == colth_B and rowth_A == rowth_B:
         print(matrix_A_pretty)
         print("+")
         print(matrix_B_pretty)
@@ -106,29 +105,21 @@ def additional(operation):
         for i in range(rowth_A):
             rowth_C = []
             for j in range(colth_A):
-                A_element = read_file_matrix(name_matrix_A)[i][j]
-                B_element = read_file_matrix(name_matrix_B)[i][j]
-                if not (A_element.isdigit() and B_element.isdigit()):
-                    if str(A_element) == str(B_element):
-                        len_char = len(str(A_element)) + len(str(B_element))
-                        rowth_C.append(str(len_char) + str(A_element))
-                    else:
-                        rowth_C.append(str(A_element) + "+" + str(B_element))
-                else:
-                    rowth_C.append(int(A_element) + int(B_element))
+                A_element = sp.sympify(read_file_matrix(name_matrix_A)[i][j])
+                B_element = sp.sympify(read_file_matrix(name_matrix_B)[i][j])
+                rowth_C.append(sp.expand(A_element + B_element))
 
             new_matrix.append(rowth_C)
 
-        with open("new matrix.csv", "w", newline="") as writefile:
+        with open("matrix NEW.csv", "w", newline="") as writefile:
             writer = csv.writer(writefile)
             writer.writerows(new_matrix)
+
+        print(print_file_matrix("matrix NEW.csv"))
+
     else:
-        print("The number of columns in the first matrix should be equal to the number of rows in the second.")
+        print("Matrices should be the same size.")
         return False
-
-
-def take_matrix_element(matrix, row_th, col_th):
-    return matrix[row_th][col_th]
 
 
 def multiplicational(operation):
@@ -159,13 +150,17 @@ def multiplicational(operation):
         for rowA in range(rowth_A):
             for colB in range(colth_B):
                 for rowB in range(rowth_B):
-                    new_matrix[rowA][colB] += int(take_matrix_element(read_file_matrix(name_matrix_A), rowA, rowB)) * int(
-                        take_matrix_element(read_file_matrix(name_matrix_B), rowB, colB)
+                    new_matrix[rowA][colB] += sp.simplify(
+                        sp.sympify(take_matrix_element(read_file_matrix(name_matrix_A), rowA, rowB))
+                        * sp.sympify(take_matrix_element(read_file_matrix(name_matrix_B), rowB, colB))
                     )
 
-        with open("new matrix.csv", "w", newline="") as writefile:
+        with open("matrix NEW.csv", "w", newline="") as writefile:
             writer = csv.writer(writefile)
             writer.writerows(new_matrix)
+
+        print(print_file_matrix("matrix NEW.csv"))
+
     else:
         print("The number of columns in the first matrix should be equal to the number of rows in the second.")
         return False
@@ -199,7 +194,7 @@ def det_2x2_matrix(matrix):
     b = matrix[0][1]
     c = matrix[1][1]
     d = matrix[1][0]
-    det = int(a) * int(c) - int(d) * int(b)
+    det = sp.sympify(a) * sp.sympify(c) - sp.sympify(d) * sp.sympify(b)
     return det
 
 
@@ -219,8 +214,8 @@ def det_matrix(name):
             detA = det_2x2_matrix(get_minor_matrix(name, 0, 0))
             detB = det_2x2_matrix(get_minor_matrix(name, 0, 1))
             detC = det_2x2_matrix(get_minor_matrix(name, 0, 2))
-            det = int(a) * detA - int(b) * detB + int(c) * detC
-            return f"Det of {name.replace('.csv', '')} is {int(det)}"
+            det = sp.sympify(a) * sp.sympify(detA) - sp.sympify(b) * sp.sympify(detB) + sp.sympify(c) * sp.sympify(detC)
+            return f"Det of {name.replace('.csv', '')} is {det}"
         elif row == 4:
             return f"Comming soon"
     else:
@@ -230,10 +225,9 @@ def det_matrix(name):
 def matrix_calculator(operator):
     if "+" in operator:
         additional(operator)
-        print(print_file_matrix("new matrix.csv"))
+
     elif "*" in operator:
         multiplicational(operator)
-        print(print_file_matrix("new matrix.csv"))
 
 
 def promt_user(id):
